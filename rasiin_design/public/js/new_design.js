@@ -16,42 +16,6 @@ function closeFirstPageNav() {
   menuFirstPage.classList.remove("open-menu")
 }
 
-// function get_pages() {
-//   frappe.xcall("frappe.desk.desktop.get_workspace_sidebar_items").then((r) => {
-//     var arr = Array(r.pages[0].content)
-
-//     r.pages.forEach((element, index) => {
-//       if (element.name != "Home") {
-//         frappe.db.get_doc("Workspace", element.name).then((res) => {
-//           if (res.shortcuts.length > 0) {
-//             var listitmes = ``
-
-//             res.shortcuts.forEach((el) => {
-//               if (el.type == "DocType") {
-//                 listitmes += `<li><a href="/app/${el.link_to
-//                   .replace(/\s/g, "-")
-//                   .toLowerCase()}">${el.label}</a></li>`
-//               }
-//             })
-
-//             $(`<li><a class="sidebar-sub-toggle "><svg class="icon md" style = "color:white">
-//            <use  fill="white" stroke="white"   href="#icon-${element.icon}"></use>
-//        </svg> ${element.name} <span class="sidebar-collapse-icon ti-angle-down"></span></a>
-//    <ul>
-
-//        ${listitmes}
-
-//    </ul>
-// </li>
-
-// `).appendTo(".sideitems")
-//           }
-//         })
-//       }
-//     })
-//   })
-// }
-
 function make_cust_nav_bar(navbardata) {
   let navitems = ``
   let dropDownitems = ``
@@ -97,9 +61,6 @@ function make_cust_nav_bar(navbardata) {
         navitems += `<a class="nav-link nav-item" href="/insights/public/dashboard/${el.dashboard_link}" target= "_blank">${el.label}</a>`
       }
     } else if (el.type == "Report") {
-      // navitems += `<a class="nav-link nav-item" href="/app/${el.label
-      //   .replace(" ", "-")
-      //   .toLowerCase()}/view/report">${el.label}</a>`
       if (el.group) {
         if (!reportGroups[el.group]) {
           reportGroups[el.group] = ``
@@ -118,8 +79,6 @@ function make_cust_nav_bar(navbardata) {
   })
   let reportsMenu = ``
   for (var key in reportGroups) {
-    // Access the property value using data[key]
-    // console.log("Key: " + key);
     reportsMenu += `
         <div class="dropdown nav-item">
         <a style ="color:#fff" class="dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -181,13 +140,8 @@ navbardata.forEach((el) => {
     }
 
   if (el.type === "Insights Dashboard") {
-    // window.location.href = `http://104.251.219.249/insights/dashboard`;
     mobile_links += `
       <a class="companies__title" href="/insights/public/dashboard/${el.dashboard_link}">${el.label}</a>`;
-
-    // frappe.set_route(
-    //   `/insights/public/dashboard/${doc.home_shortcut[0].dashboard_link}`
-    // )
   } 
 
   // Collect Report links into report_links
@@ -294,43 +248,24 @@ if (report_links) {
   return navbar
 }
 
-
-
 function get_notification() {
   frappe.db.get_list("Nofication", { limit: 1000 }).then((r) => {
-    // $("#notif_count").html(r.length)
-    // alert(r.length)
   })
 }
-
 
 function 	setup_notifications() {
   if (frappe.boot.desk_settings.notifications && frappe.session.user !== "Guest") {
     let notifications = new frappe.ui.Notifications();
     notifications.make();
-    // console.log(notifications)
   }
 }
-
 
 function make_header_nav(data) {
   let navhtml = make_cust_nav_bar(data)
   
   if (frappe.boot && frappe.boot.home_page !== "setup-wizard") {
     let route = window.location.href
-    // alert(window.location.href)
-    // if(route !== "http://localhost/app" &&  route !== "http://localhost/app/home" ){
-      // frappe.frappe_toolbar = new frappe.ui.toolbar.Toolbar();
-      // alert(frappe.session.user)
-      // console.log(frappe.boot)
-      // setup_notifications()
       $(navhtml).prependTo($(".header_sec").empty())
-
-    // $('.header_sec').empty('')
-    // $(navhtml).appendTo('.header_sec')
-    // let awesome_bar = new frappe.search.AwesomeBar();
-    //  awesome_bar.setup("#navbar-search");
-    // }
   }
 }
 
@@ -340,11 +275,6 @@ if (JSON.parse(localStorage.getItem("navdata")) === null) {
 frappe.ui.Page = class Page {
   constructor(opts) {
     $.extend(this, opts)
-
-    
-
-	
-
     this.set_document_title = true
     this.buttons = {}
     this.fields_dict = {}
@@ -355,15 +285,11 @@ frappe.ui.Page = class Page {
       localStorage.getItem("navdata") || JSON.parse([])
     )
 
-    // console.log(navbardata)
     frappe.ui.pages[frappe.get_route_str()] = this
-    // let route  = window.location.href
-    // alert("ok ok ")
 
     if (this.title !== "Workspace") {
       frappe.realtime.on("new_notice", (data) => {
         frappe.show_alert("New Notication ", 10)
-        // alert("in realtime")
         setTimeout(() => {
           get_notification()
         }, 100)
@@ -372,9 +298,6 @@ frappe.ui.Page = class Page {
       get_notification()
 
     }
-    // else{
-    // 	$('.header_sec').empty()
-    // }
   }
 
   
@@ -1356,7 +1279,6 @@ frappe.ui.Page = class Page {
     this.wrapper.trigger("view-change")
   }
 }
-// let navbardata = [{"title" : "OPD Orders" , "type" : "DocType"}, {"title" : "IPD Order" , "type" : "DocType"} , {"title" : "Que" , "type" : "DocType"}]
 
 frappe.Application = class extends frappe.Application {
   constructor() {
@@ -1365,12 +1287,6 @@ frappe.Application = class extends frappe.Application {
   }
 
   make() {
-    // $(` <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/lykmapipo/themify-icons@0.1.2/css/themify-icons.css">`).appendTo("head")
-    // $(`<div class="col-lg-2 layout-sidebar-section"></div>`).appendTo("#body")
-    // make_side()
-    // get_pages()
-    // sidebar_togg()
-    // this.make_nav_bar()
   }
   make_nav_bar() {
     $('<div class = "header_sec"> </div>').appendTo("header")
@@ -1382,44 +1298,27 @@ frappe.views.Workspace = class customWorkspace {
     this.wrapper = $(wrapper)
     this.page = wrapper.page
     this.title = "Home"
-    // this.prepare_container()
   }
   show() {
-    // $('.navbar').css('display' , 'none')
-    //    alert("ok and")
     $(".page-head").hide()
     $(".header_sec").hide()
-    // alert("ok")
 
     get_notification()
 
-    //  this.body =
-    // console.log
     let home_p = $(".page-container")
     home_p.empty()
     var me = this
 
     frappe.call({
-      // method: "rasiin_design.api.template.get_html", //dotted path to server method
       method: "rasiin_design.api.template.app_page",
       callback: function (r) {
-        // code snippet
-        // alert("ol 2")
-        // console.log("this is from python " ,r.message)
         var body = r.message[0]
-        // console.log(r.message[0])
-        // console.log(r.message[1])
         $(frappe.render_template(body)).appendTo(home_p)
         $(".app_btn").click(function (e) {
-          // alert( "Handler for .click() called." );
-          // console.log(e.currentTarget.id)
-          // alert(e.currentTarget.id)
           frappe.db
             .get_doc("Home Page", `${e.currentTarget.id}`)
             .then((doc) => {
               let navbardata = doc.home_shortcut
-              //  navbardata.unshift({"label" : doc.name , "type" : "DocType" , "link_to" : doc.name})
-              // console.log(doc.shortcuts[0].label)
               localStorage.removeItem("navdata")
               localStorage.setItem("navdata", JSON.stringify(navbardata))
               make_header_nav(navbardata)
@@ -1428,7 +1327,6 @@ frappe.views.Workspace = class customWorkspace {
                   `/app/query-report/${doc.home_shortcut[0].link_to}`
                 )
               } else if (doc.home_shortcut[0].type == "Insights Dashboard") {
-                // window.location.href = `http://104.251.219.249/insights/dashboard`;
 
                 frappe.set_route(
                   `/insights/public/dashboard/${doc.home_shortcut[0].dashboard_link}`
@@ -1443,184 +1341,11 @@ frappe.views.Workspace = class customWorkspace {
 
               $(".header_sec").show()
               $(".page-head").show()
-              // let app = new frappe.ui.Page()
-
-              // console.log(doc.shortcuts)
             })
         })
-        //         frappe.require(['/assets/rasiin_design/js/lib/highcharts/code/highcharts.js' ,'/assets/rasiin_design/js/lib/highcharts/code/modules/exporting.js','/assets/rasiin_design/js/lib/highcharts/code/modules/export-data.js' ], () => {
-        //             // alert("ok ")
-        //            // Income vs Expense
-        //         Highcharts.chart('containerchart', {
-        //             chart: {
-        //             type: 'spline'
-        //             },
-        //             title: {
-        //             text: 'Income Vs Expense'
-        //             },
-        //             subtitle: {
-        //             text: 'Year 2022'
-        //             },
-        //             xAxis: {
-        //             categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-        //                 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-        //             accessibility: {
-        //                 description: 'Months of the year'
-        //             }
-        //             },
-        //             yAxis: {
-        //             title: {
-        //                 text: 'Amount'
-        //             },
-        //             labels: {
-        //                 // formatter: function () {
-        //                 // return this.value + '°';
-        //                 // }
-        //             }
-        //             },
-        //             tooltip: {
-        //             crosshairs: true,
-        //             shared: true
-        //             },
-        //             plotOptions: {
-        //             spline: {
-        //                 marker: {
-        //                 radius: 4,
-        //                 lineColor: '#666666',
-        //                 lineWidth: 1
-        //                 }
-        //             }
-        //             },
-        //             series: [{
-        //             name: 'Income',
-        //             marker: {
-        //                 symbol: 'square'
-        //             },
-        //             lineColor:"#0f0",
-        //             data : r.message[1][0]['inc']
-        //             // data: [5.2, 5.7, 8.7, 13.9, 18.2, 21.4, 25.0, 26.4, 22.8, 17.5, 12.1, 7.6]
-
-        //             }, {
-        //             name: 'Expense',
-        //             lineColor:"#f00",
-        //             marker: {
-        //                 symbol: 'diamond'
-        //             },
-        //             data : r.message[1][0]['exp']
-        //             // data: [1.5, 1.6, 3.3, 5.9, 10.5, 13.5, 14.5, 14.4, 11.5, 8.7, 4.7, 2.6]
-        //             }]
-        //         });
-
-        //                   // Create the chart
-        // Highcharts.chart('pichart', {
-        //     chart: {
-        //       type: 'pie'
-        //     },
-        //     title: {
-        //       text: 'Balance Sheet'
-        //       },
-
-        //     accessibility: {
-        //       announceNewData: {
-        //         enabled: true
-        //       },
-        //       point: {
-        //         valueSuffix: '$'
-        //       }
-        //     },
-
-        //     plotOptions: {
-        //       series: {
-        //         dataLabels: {
-        //           enabled: true,
-        //           format: '{point.name}: ${point.y:.1f}'
-        //         }
-        //       }
-        //     },
-
-        //     tooltip: {
-        //       headerFormat: '<span style="font-size:11px">{series.name}</span><br>',
-        //       pointFormat: '<span style="color:{point.color}">{point.name}</span>: <b>{point.y:.2f}%</b> of total<br/>'
-        //     },
-
-        //     series: [
-        //       {
-        //         name: "Browsers",
-        //         colorByPoint: true,
-        //         data: r.message[2]
-
-        //         // [
-        //         //   {
-        //         //     name: "Chrome",
-        //         //     y: 61.04,
-        //         //     drilldown: "Chrome"
-        //         //   },
-        //         //   {
-        //         //     name: "Safari",
-        //         //     y: 9.47,
-        //         //     drilldown: "Safari"
-        //         //   },
-        //         //   {
-        //         //     name: "Edge",
-        //         //     y: 0.0,
-        //         //     drilldown: "Edge"
-        //         //   },
-        //         //   {
-        //         //     name: "Firefox",
-        //         //     y: 8.15,
-        //         //     drilldown: "Firefox"
-        //         //   },
-        //         //   {
-        //         //     name: "Other",
-        //         //     y: 11.02,
-        //         //     drilldown: null
-        //         //   }
-        //         // ]
-        //       }
-        //     ],
-
-        //   });
-
-        //          })
       },
     })
-    // frappe.xcall("rasiin_design.api.template.get_html")
-    // .then(r => {
-    //     console.log('this is from python',r.message)
-    //  $(frappe.render_template(r.message)).appendTo(this.page.main)
-    // })
-
-    // make_side()
-    // sidebar_togg()
-    // get_pages()
   }
   prepare_container() {
-    // let list_sidebar = $(`
-    // 	<div class="list-sidebar overlay-sidebar hidden-xs hidden-sm">
-    // 		<div class="desk-sidebar list-unstyled sidebar-menu"></div>
-    // 	</div>
-    // `).appendTo(this.wrapper.find(".layout-side-section"));
-    // this.sidebar = list_sidebar.find(".desk-sidebar");
-    // this.body = this.wrapper.find(".layout-main-section");
   }
-
-  //   let openMenuFirstPageIcon = document.querySelector(
-  //   	"[data-first-page-open-nav]"
-  //     );
-  //   const closeMenuFirstPageIcon = document.querySelector(
-  // 	"[data-first-page-close-nav]"
-  //   );
-  // const menuFirstPage = document.querySelector("[data-menu-first-page]");
-  //   const overlayFirstPage = document.querySelector("[data-overlay-first-page]");
-  //   const dataTable = document.querySelector("[data-table-sec]");
 }
-
-// openMenuFirstPageIcon.addEventListener("click", () => {
-//   openFirstPageNav()
-// })
-
-// closeMenuFirstPageIcon.addEventListener("click", () => {
-//   closeFirstPageNav()
-// })
-
-
