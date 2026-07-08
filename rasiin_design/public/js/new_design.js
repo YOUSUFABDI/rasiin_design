@@ -271,7 +271,7 @@ function make_header_nav(data) {
   
   if (frappe.boot && frappe.boot.home_page !== "setup-wizard") {
     let route = window.location.href
-      $(navhtml).prependTo($(".header_sec").empty()
+      $(navhtml).prependTo($(".header_sec").empty())
   }
 
   hide_frappe_default_sidebar();
@@ -1363,7 +1363,6 @@ frappe.views.Workspace = class customWorkspace {
     this.title = "Home"
   }
   show() {
-<<<<<<< HEAD
     $(".page-head").hide()
     $(".header_sec").hide()
 
@@ -1425,4 +1424,4 @@ frappe.views.Workspace = class customWorkspace {
   // const menuFirstPage = document.querySelector("[data-menu-first-page]");
   //   const overlayFirstPage = document.querySelector("[data-overlay-first-page]");
   //   const dataTable = document.querySelector("[data-table-sec]");
-}
+
