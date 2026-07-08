@@ -23,21 +23,20 @@ def get_workspace_sidebar_items():
 	has_access =1
 	# don't get domain restricted pages
 	allowed_modules = []
-	if frappe.db.exists("User Home", frappe.session.user, cache=True):
+	has_user_home = frappe.db.exists("User Home", frappe.session.user, cache=True)
+	if has_user_home:
 		user_page = frappe.get_doc("User Home", frappe.session.user).allowed_modules
-		
+
 		for page in user_page:
 			allowed_modules.append(page.module)
-	
-	
-	filters = {
-	
-		"name": ["in", allowed_modules],
-		# "image_icon" :  ["!=", ""]
-	 }
 
-	if frappe.session.user == "Administrator" or has_role(frappe.session.user , "Full Admin"):
-		filters = {}
+	filters = {}
+
+	if frappe.session.user != "Administrator" and not has_role(frappe.session.user, "Full Admin"):
+		if has_user_home and allowed_modules:
+			filters = {"name": ["in", allowed_modules]}
+		elif has_user_home:
+			filters = {"name": ["in", []]}
 	
 	# pages sorted based on sequence id
 	order_by = "name asc"

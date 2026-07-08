@@ -1,7 +1,13 @@
+// ---- new_design.js -----
+
 const openMenuFirstPageIcon = document.querySelector(
   "[data-first-page-open-nav]"
 )
 const closeMenuFirstPageIcon = document.querySelector(".close_mennu")
+
+function hide_frappe_default_sidebar() {
+	$(".body-sidebar-container").hide();
+}
 
 function openFirstPageNav() {
   let navbardata = JSON.parse(localStorage.getItem("navdata") || JSON.parse([]))
@@ -265,8 +271,10 @@ function make_header_nav(data) {
   
   if (frappe.boot && frappe.boot.home_page !== "setup-wizard") {
     let route = window.location.href
-      $(navhtml).prependTo($(".header_sec").empty())
+      $(navhtml).prependTo($(".header_sec").empty()
   }
+
+  hide_frappe_default_sidebar();
 }
 
 if (JSON.parse(localStorage.getItem("navdata")) === null) {
@@ -287,7 +295,7 @@ frappe.ui.Page = class Page {
 
     frappe.ui.pages[frappe.get_route_str()] = this
 
-    if (this.title !== "Workspace") {
+    if (this.title !== "Workspace" && this.title !== "Desktop") {
       frappe.realtime.on("new_notice", (data) => {
         frappe.show_alert("New Notication ", 10)
         setTimeout(() => {
@@ -351,37 +359,6 @@ frappe.ui.Page = class Page {
   load_lib(callback) {
     frappe.require(this.required_libs, callback)
   }
-
-  // add_main_section() {
-  // 	$(frappe.render_template("page", {})).appendTo(this.wrapper);
-  // 	if (this.single_column) {
-  // 		// nesting under col-sm-12 for consistency
-  // 		this.add_view(
-  // 			"main",
-  // 			'<div class="row layout-main">\
-  // 				<div class="col-md-12 layout-main-section-wrapper">\
-  // 					<div class="layout-main-section"></div>\
-  // 					<div class="layout-footer hide"></div>\
-  // 				</div>\
-  // 			</div>'
-  // 		);
-  // 	} else {
-  // 		this.add_view(
-  // 			"main",
-  // 			`
-  // 			<div class="row layout-main">
-  // 				<div class="col-lg-2 layout-side-section"></div>
-  // 				<div class="col layout-main-section-wrapper">
-  // 					<div class="layout-main-section"></div>
-  // 					<div class="layout-footer hide"></div>
-  // 				</div>
-  // 			</div>
-  // 		`
-  // 		);
-  // 	}
-
-  // 	this.setup_page();
-  // }
 
   add_main_section() {
     $(frappe.render_template("page", {})).appendTo(this.wrapper)
@@ -1293,6 +1270,92 @@ frappe.Application = class extends frappe.Application {
   }
 }
 
+function bind_app_button_handlers() {
+  $(".app_btn").off("click").on("click", function (e) {
+    frappe.db
+      .get_doc("Home Page", `${e.currentTarget.id}`)
+      .then((doc) => {
+        let navbardata = doc.home_shortcut
+        localStorage.removeItem("navdata")
+        localStorage.setItem("navdata", JSON.stringify(navbardata))
+        make_header_nav(navbardata)
+        if (doc.home_shortcut[0].type == "Report") {
+          frappe.set_route(
+            `/app/query-report/${doc.home_shortcut[0].link_to}`
+          )
+        } else if (doc.home_shortcut[0].type == "Insights Dashboard") {
+          frappe.set_route(
+            `/insights/public/dashboard/${doc.home_shortcut[0].dashboard_link}`
+          )
+        } else {
+          frappe.set_route(
+            `/app/${doc.home_shortcut[0].link_to
+              .replace(/\s/g, "-")
+              .toLowerCase()}`
+          )
+        }
+
+        $(".header_sec").show()
+        $(".page-head").show()
+      })
+  })
+}
+
+let _home_page_request_id = 0
+
+function show_custom_home_page() {
+  $(".page-head").hide()
+  $(".header_sec").hide()
+  hide_frappe_default_sidebar()
+  get_notification()
+
+  let home_p = $(".page-container")
+  home_p.empty()
+
+  const request_id = ++_home_page_request_id
+
+  frappe.call({
+    method: "rasiin_design.api.template.app_page",
+    callback: function (r) {
+      if (request_id !== _home_page_request_id) return
+      home_p.empty()
+      var body = r.message[0]
+      $(frappe.render_template(body)).appendTo(home_p)
+      bind_app_button_handlers()
+    },
+  })
+}
+
+function setup_custom_desktop_handlers() {
+  if (!frappe.pages["desktop"] || frappe.pages["desktop"]._custom_handlers_set) return
+  frappe.pages["desktop"]._custom_handlers_set = true
+
+  frappe.pages["desktop"].on_page_load = function (wrapper) {
+    frappe.ui.make_app_page({
+      parent: wrapper,
+      title: "Desktop",
+      single_column: true,
+      hide_sidebar: true,
+    })
+    show_custom_home_page()
+  }
+
+  frappe.pages["desktop"].on_page_show = function () {
+    if (!$(".page-container .home_page_sec").length) {
+      show_custom_home_page()
+    }
+  }
+}
+
+const _frappe_dom_eval = frappe.dom.eval
+frappe.dom.eval = function (src, name) {
+  const result = _frappe_dom_eval.apply(this, arguments)
+  if (typeof src === "string" && src.includes("DesktopPage")) {
+    setup_custom_desktop_handlers()
+  }
+  return result
+}
+
 frappe.views.Workspace = class customWorkspace {
   constructor(wrapper) {
     this.wrapper = $(wrapper)
@@ -1300,6 +1363,7 @@ frappe.views.Workspace = class customWorkspace {
     this.title = "Home"
   }
   show() {
+<<<<<<< HEAD
     $(".page-head").hide()
     $(".header_sec").hide()
 
@@ -1345,7 +1409,20 @@ frappe.views.Workspace = class customWorkspace {
         })
       },
     })
+    show_custom_home_page()
+
   }
   prepare_container() {
   }
+}
+
+  //   let openMenuFirstPageIcon = document.querySelector(
+  //   	"[data-first-page-open-nav]"
+  //     );
+  //   const closeMenuFirstPageIcon = document.querySelector(
+  // 	"[data-first-page-close-nav]"
+  //   );
+  // const menuFirstPage = document.querySelector("[data-menu-first-page]");
+  //   const overlayFirstPage = document.querySelector("[data-overlay-first-page]");
+  //   const dataTable = document.querySelector("[data-table-sec]");
 }
